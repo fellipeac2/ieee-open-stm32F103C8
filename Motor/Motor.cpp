@@ -8,6 +8,7 @@ Motor::Motor(PinName ma, PinName mb, PinName encA, PinName encB) :_encoder(encA,
 	_mb.write(0.0);
 	_velocity = 0;
 	_last_count = 0;
+	_velocity_timer.start();
 }
 
 void Motor::setPWM(float velocity) {
@@ -27,6 +28,18 @@ void Motor::setPWM(float velocity) {
 
 Encoder & Motor::getEncoder() {
 	return this->_encoder;
+}
+
+void Motor::compute_velocity() {
+	int pulses = _encoder.get_pulses();
+	float time = _velocity_timer.read_us()/1E6f;
+	
+	_encoder.reset()
+	_velocity_timer.reset();
+	
+	if (time != 0) {
+		_velocity = (pulses * WHEEL_SIZE * PI)/(PULSES_PER_REVOLUTION * GEAR_RATIO * time)
+	}	
 }
 
 float Motor::get_rev_per_sec() {
